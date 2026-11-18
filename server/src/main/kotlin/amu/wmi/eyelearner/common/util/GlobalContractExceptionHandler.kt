@@ -1,7 +1,12 @@
 package amu.wmi.eyelearner.common.util
 
+import amu.wmi.eyelearner.auth.dto.AuthSessionResponse
+import amu.wmi.eyelearner.auth.dto.InitLoginResponse
+import amu.wmi.eyelearner.auth.dto.LogoutResponse
 import amu.wmi.eyelearner.common.contract.ContractError
+import kotlinx.serialization.json.Json
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -25,8 +30,20 @@ fun evaluateErrorCode(error: ContractError): ContractErrorException {
 
 @RestControllerAdvice
 class GlobalContractExceptionHandler {
+
+    private val json = Json { ignoreUnknownKeys = true }
+
     @ExceptionHandler(ContractErrorException::class)
-    fun handleContractError(ex: ContractErrorException): ResponseEntity<ContractError> {
-        return ResponseEntity.status(ex.status).body(ex.errorBody)
+    fun handleContractError(ex: ContractErrorException): ResponseEntity<String> {
+        val errorJson = when (val body = ex.errorBody) {
+            is InitLoginResponse.Error -> json.encodeToString(InitLoginResponse.Error.serializer(), body)
+            is AuthSessionResponse.InvalidOrExpiredToken -> json.encodeToString(AuthSessionResponse.InvalidOrExpiredToken.serializer(), body)
+            is AuthSessionResponse.Error -> json.encodeToString(AuthSessionResponse.Error.serializer(), body)
+            is LogoutResponse.Error -> json.encodeToString(LogoutResponse.Error.serializer(), body)
+            else -> """{"message":"${body.message ?: "Unknown error"}"}"""
+        }
+        return ResponseEntity.status(ex.status)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(errorJson)
     }
 }

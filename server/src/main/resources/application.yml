@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+eyelearner:
+  auth:
+    access-token-expiration-seconds: 900
+    refresh-token-expiration-seconds: 604800
+  usos:
+    base-url: "${USOS_BASE_URL:https://usosapps.amu.edu.pl}"
+    consumer-key: "${USOS_CONSUMER_KEY:test-consumer-key}"
+    consumer-secret: "${USOS_CONSUMER_SECRET:test-consumer-secret}"
+    scopes: "${USOS_SCOPES:}"

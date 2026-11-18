@@ -8,6 +8,7 @@ import amu.wmi.eyelearner.auth.dto.InitLoginRequest
 import amu.wmi.eyelearner.auth.dto.InitLoginResponse
 import amu.wmi.eyelearner.common.contract.ContractError
 import amu.wmi.eyelearner.common.util.evaluateErrorCode
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-class LoginController(val service: LoginContract) : LoginContract {
+class LoginController(@Qualifier("authService") val service: LoginContract) : LoginContract {
 
     @PostMapping(AuthEndpoints.LOGIN_INIT)
     override suspend fun initiate(@RequestBody request: InitLoginRequest): InitLoginResponse {
