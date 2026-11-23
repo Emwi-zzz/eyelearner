@@ -1,20 +1,22 @@
 package amu.wmi.eyelearner
 
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import amu.wmi.eyelearner.auth.infrastructure.config.AuthProperties
+import amu.wmi.eyelearner.auth.infrastructure.config.UsosProperties
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.runApplication
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
-}
-
-fun Application.module() {
-    routing {
-        get("/") {
-            call.respondText(sayHello("Ktor"))
+@SpringBootApplication
+@EnableConfigurationProperties(UsosProperties::class, AuthProperties::class)
+class ServerApplication {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            runApplication<ServerApplication>(*args)
         }
     }
+}
+
+fun main(args: Array<String>) {
+    ServerApplication.main(args)
 }
