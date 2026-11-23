@@ -83,6 +83,8 @@ class AuthControllerIntegrationTest {
             .bodyValue(InitLoginRequest("https://myapp.com/callback"))
             .exchange()
             .expectStatus().isEqualTo(502)
+            .expectBody()
+            .jsonPath("$.message").isEqualTo("Failed to initiate login with USOS: USOS Gateway Timeout")
     }
 
     @Test
@@ -105,6 +107,7 @@ class AuthControllerIntegrationTest {
             .jsonPath("$.accessToken").isNotEmpty
             .jsonPath("$.refreshToken").isNotEmpty
             .jsonPath("$.expiresInSeconds").isEqualTo(900)
+            .jsonPath("$.userId").isNotEmpty
     }
 
     @Test
@@ -135,6 +138,7 @@ class AuthControllerIntegrationTest {
             .expectBody()
             .jsonPath("$.accessToken").isNotEmpty
             .jsonPath("$.refreshToken").isNotEmpty
+            .jsonPath("$.userId").isEqualTo("u-1")
     }
 
     @Test
@@ -166,5 +170,38 @@ class AuthControllerIntegrationTest {
         val ref = kotlinx.coroutines.runBlocking { tokenStorage.findRefreshToken("ref-to-logout") }
         org.junit.jupiter.api.Assertions.assertNull(acc)
         org.junit.jupiter.api.Assertions.assertNull(ref)
+    }
+
+    @Test
+    fun `OPTIONS preflight request returns CORS headers`() {
+        webTestClient.options()
+            .uri(AuthEndpoints.LOGIN_INIT)
+            .header("Origin", "http://localhost:8081")
+            .header("Access-Control-Request-Method", "POST")
+            .header("Access-Control-Request-Headers", "content-type")
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
+            .expectHeader().exists("Access-Control-Allow-Methods")
+            .expectHeader().valueEquals("Access-Control-Allow-Credentials", "true")
+    }
+
+    @Test
+    fun `POST login init returns CORS headers for cross-origin request`() {
+        given(kotlinx.coroutines.runBlocking {
+            usosOAuthClient.getRequestToken("https://myapp.com/callback", null)
+        }).willReturn(
+            UsosRequestToken("req-token-123", "req-sec-456", true)
+        )
+
+        webTestClient.post()
+            .uri(AuthEndpoints.LOGIN_INIT)
+            .header("Origin", "http://localhost:8081")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(InitLoginRequest("https://myapp.com/callback"))
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:8081")
+            .expectHeader().valueEquals("Access-Control-Allow-Credentials", "true")
     }
 }

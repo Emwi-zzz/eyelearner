@@ -14,7 +14,8 @@ sealed interface AuthSessionResponse {
     data class Success(
         val accessToken: String,
         val refreshToken: String,
-        val expiresInSeconds: Long
+        val expiresInSeconds: Long,
+        val userId: String = ""
     ) : AuthSessionResponse
 
     @Serializable

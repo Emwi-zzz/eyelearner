@@ -40,7 +40,8 @@ class RefreshSessionUseCase(
             AuthSessionResponse.Success(
                 accessToken = newAccessToken,
                 refreshToken = newRefreshToken,
-                expiresInSeconds = authProperties.accessTokenExpirationSeconds
+                expiresInSeconds = authProperties.accessTokenExpirationSeconds,
+                userId = user.id
             )
         } catch (e: Exception) {
             AuthSessionResponse.Error(e.message ?: "Unexpected error refreshing session")

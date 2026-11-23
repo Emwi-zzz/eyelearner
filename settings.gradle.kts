@@ -24,8 +24,10 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 include(":core")
 include(":server")
+include(":app")

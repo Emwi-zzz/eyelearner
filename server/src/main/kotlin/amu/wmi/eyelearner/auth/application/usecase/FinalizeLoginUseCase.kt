@@ -78,7 +78,8 @@ class FinalizeLoginUseCase(
             AuthSessionResponse.Success(
                 accessToken = appAccessToken,
                 refreshToken = appRefreshToken,
-                expiresInSeconds = authProperties.accessTokenExpirationSeconds
+                expiresInSeconds = authProperties.accessTokenExpirationSeconds,
+                userId = user.id
             )
         } catch (e: Exception) {
             AuthSessionResponse.Error(e.message ?: "Unexpected error finalizing login")

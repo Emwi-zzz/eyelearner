@@ -67,6 +67,7 @@ class FinalizeLoginUseCaseTest {
         val user = userRepository.findByUsosId("usos-123")
         assertNotNull(user)
         assertEquals("Anna", user?.firstName)
+        assertEquals(user?.id, success.userId)
     }
 
     @Test

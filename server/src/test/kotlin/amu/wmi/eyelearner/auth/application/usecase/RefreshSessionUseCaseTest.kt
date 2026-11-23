@@ -46,6 +46,7 @@ class RefreshSessionUseCaseTest {
         val success = response as AuthSessionResponse.Success
         assertEquals("new-tok-1", success.accessToken)
         assertEquals("new-tok-2", success.refreshToken)
+        assertEquals("u-1", success.userId)
 
         assertNull(tokenStorage.findAccessToken("old-access"))
         assertNull(tokenStorage.findRefreshToken("old-refresh"))
