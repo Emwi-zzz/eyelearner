@@ -24,6 +24,7 @@ spring-dependency-management = "1.1.7"
 kotlinx-coroutines = "1.11.0"
 koin = "4.2.2"
 koin-plugin = "1.2.3"
+composeHotReload = "1.0.0"
 
 [libraries]
 jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
@@ -88,3 +89,7 @@ spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
+composeHotReload = {id = "org.jetbrains.compose.hot-reload", version.ref = "composeHotReload" }
+
+
+

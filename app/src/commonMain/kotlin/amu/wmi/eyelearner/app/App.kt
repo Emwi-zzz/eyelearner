@@ -3,6 +3,7 @@ package amu.wmi.eyelearner.app
 import amu.wmi.eyelearner.app.core.di.appModule
 import amu.wmi.eyelearner.app.navigation.AppNavHost
 import amu.wmi.eyelearner.app.navigation.Route
+import amu.wmi.eyelearner.app.theme.AppThemeProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
@@ -14,17 +15,20 @@ import org.koin.compose.KoinApplication
 import org.koin.dsl.koinConfiguration
 
 
-@Composable
-internal fun App(
+@Composable internal fun App(
     onNavHostReady: suspend (NavController) -> Unit = {}
 ) {
     KoinApplication(configuration = koinConfiguration { modules(appModule) }) {
         val navController = rememberNavController()
-        AppNavHost(
-            navController = navController
-        )
-        LaunchedEffect(navController) {
-            onNavHostReady(navController)
+
+        AppThemeProvider {
+
+            AppNavHost(
+                navController = navController
+            )
+            LaunchedEffect(navController) {
+                onNavHostReady(navController)
+            }
         }
     }
 }
