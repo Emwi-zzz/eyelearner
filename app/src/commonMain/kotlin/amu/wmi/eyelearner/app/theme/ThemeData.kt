@@ -6,7 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 
 data class AppTheme(
     val mainPanel_color: Color,
@@ -44,6 +49,24 @@ class ThemeManager {
         appTheme = appTheme.copy(
             titleFontFamily = titleFont,
             textFontFamily = textFont
+        )
+    }
+
+
+    fun getTitleFont(
+        color: Color = appTheme.mainText_color,
+        fontSize: TextUnit  = 20.sp,
+        fontWeight: FontWeight = FontWeight.SemiBold,
+        fontStyle: FontStyle = FontStyle.Normal,
+        letterSpacing: TextUnit  = 0.5.sp
+    ) : TextStyle {
+        return TextStyle(
+            fontFamily = appTheme.titleFontFamily,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            letterSpacing = letterSpacing,
+            color = color
         )
     }
 }

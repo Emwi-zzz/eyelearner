@@ -38,3 +38,7 @@ tasks.withType<Test> {
 tasks.register("run") {
     dependsOn("bootRun")
 }
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

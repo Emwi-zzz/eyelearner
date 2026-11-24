@@ -4,18 +4,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
-import com.composables.googlefonts.rememberGoogleFontFamily
+import eyelearner.app.generated.resources.Res
+import eyelearner.app.generated.resources.allFontResources
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.Font
+import org.jetbrains.compose.resources.Font
+
 
 @Composable fun AppThemeProvider(themeManager: ThemeManager = GlobalThemeManager.instance, content: @Composable () -> Unit,) {
 
-    val baloo = rememberGoogleFontFamily("Baloo 2", 400, 700)
-    val dongle = rememberGoogleFontFamily("Dongle", 400, 700)
+    // Use the exact file name without the .ttf extension
+    val balooFontResource = Res.allFontResources["Baloo2_Bold"]
+    val dongleFontResource = Res.allFontResources["Dongle_Bold"]
 
-    // 2. Update the ThemeManager when the fonts load
-    LaunchedEffect(baloo, dongle) {
+    val balooFontFamily = balooFontResource?.let {
+        FontFamily(Font(it, FontWeight.Bold))
+    } ?: FontFamily.Default
+
+    val dongleFontFamily = dongleFontResource?.let {
+        FontFamily(Font(it, FontWeight.Bold))
+    } ?: FontFamily.Default
+
+    LaunchedEffect(balooFontFamily, dongleFontFamily) {
         themeManager.updateFonts(
-            titleFont = baloo,
-            textFont = dongle
+            titleFont = balooFontFamily,
+            textFont = dongleFontFamily
         )
     }
 

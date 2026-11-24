@@ -18,41 +18,140 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.zIndex
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameMillis
+import kotlin.math.sin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.runtime.getValue
+import androidx.compose.animation.core.Easing
+import kotlin.math.cos
+import kotlin.math.PI
+import androidx.compose.animation.core.StartOffset
 
 //endregion imports
 
 
+
 //region Creature
-    @Composable fun Creature(
-        theme: ThemeManager = LocalThemeManager.current,
+private val PI_F = PI.toFloat()
+private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 
-        topLeftCorner: Dp = 120.dp,
-        topRightCorner: Dp = 140.dp,
+@Composable private fun rememberSine(
+    min: Float,
+    max: Float,
+    periodMillis: Int,
+    phase: Float = 0f,
+    enabled: Boolean = true,
+    label: String = "sine"
+): Float {
+    if (!enabled || periodMillis <= 0 || min == max) return max
 
-        height: Float = 0.7f,
-        width: Dp = 0.dp,
-
-        modifier: Modifier = Modifier,
-        content: @Composable () -> Unit
-
-    ) {
-        Card(
-            modifier = modifier
-                .fillMaxHeight(height)
-                .width(width),
-
-            shape = RoundedCornerShape(
-                topStart = topLeftCorner,
-                topEnd = topRightCorner,
+    val transition = rememberInfiniteTransition(label = label)
+    val value by transition.animateFloat(
+        initialValue = min,
+        targetValue  = max,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = periodMillis / 2,
+                easing = SineInOut
             ),
+            repeatMode = RepeatMode.Reverse,
+            initialStartOffset = StartOffset(
+                offsetMillis = ((phase % 1f) * periodMillis).toInt()
+            )
+        ),
+        label = "$label.value"
+    )
+    return value
+}
 
-            colors = CardDefaults.cardColors(theme.creatureTheme.body_color),
+@Composable fun Creature(
+    theme: ThemeManager = LocalThemeManager.current,
 
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            content()
-        }
+    // Height (fraction of parent)
+    heightMin: Float = 0.6f,
+    heightMax: Float = 0.7f,
+
+    // Top-left corner radius
+    topLeftCornerMin:  Dp = 120.dp,
+    topLeftCornerMax:  Dp = 140.dp,
+
+    // Top-right corner radius
+    topRightCornerMin: Dp = 120.dp,
+    topRightCornerMax: Dp = 140.dp,
+
+    width: Dp = 0.dp,
+
+    breathe: Boolean = true,
+    periodMillis: Int = 1400,
+
+    topLeftPhase:  Float = 0f,
+    topRightPhase: Float = 0f,
+
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    // ---- Height animation ----
+    val heightFraction = rememberSine(
+        min = heightMin,
+        max = heightMax,
+        periodMillis = periodMillis,
+        phase = 0f,
+        enabled = breathe,
+        label = "creature.height"
+    )
+
+    // ---- Top-left corner animation ----
+    val topLeftRadius = rememberSine(
+        min = topLeftCornerMin.value,
+        max = topLeftCornerMax.value,
+        periodMillis = periodMillis,
+        phase = topLeftPhase,
+        enabled = breathe,
+        label = "creature.topLeft"
+    )
+
+    // ---- Top-right corner animation ----
+    val topRightRadius = rememberSine(
+        min = topRightCornerMin.value,
+        max = topRightCornerMax.value,
+        periodMillis = periodMillis,
+        phase = topRightPhase,
+        enabled = breathe,
+        label = "creature.topRight"
+    )
+
+    Card(
+        modifier = modifier
+            .fillMaxHeight(heightFraction)
+            .width(width),
+
+        shape = RoundedCornerShape(
+            topStart = topLeftRadius.dp,
+            topEnd   = topRightRadius.dp,
+        ),
+
+        colors = CardDefaults.cardColors(containerColor = theme.creatureTheme.body_color),
+
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        content()
     }
+}
 
 //endregion
 
@@ -184,23 +283,45 @@ import androidx.compose.ui.zIndex
 //endregion
 
 //region Background
-@Composable fun BackGround(
+@Composable
+fun Background(
     backgroundColor: Color,
     squareColors: Color,
-    content: @Composable () -> Unit
-){
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
 
-//    |   __________                  |
-//    |   |        |                  |
-//    |   |        |                  |
-//    |   |        |                  |
-//    |   ‾‾‾‾‾‾‾‾‾‾   ____________
-//    |                |          |   |
-//    |                |          |   |
-//    |                |          |   |
-//    |                ‾‾‾‾‾‾‾‾‾‾‾‾   |
+            val biggerSquareSize = size.minDimension * 0.5f
+            val smallerSquareSize = size.minDimension * 0.36f
+            val margin     = 50.dp.toPx()
+            val corner     = 80.dp.toPx()
 
+            drawRoundRect(
+                color = squareColors,
+                topLeft = Offset(margin, margin),
+                size = Size(smallerSquareSize, smallerSquareSize),
+                cornerRadius = CornerRadius(corner, corner)
+            )
 
+            drawRoundRect(
+                color = squareColors,
+                topLeft = Offset(
+                    x = size.width  - margin - biggerSquareSize,
+                    y = size.height - margin - biggerSquareSize
+                ),
+                size = Size(biggerSquareSize, biggerSquareSize),
+                cornerRadius = CornerRadius(corner, corner)
+            )
+        }
+
+        content()
+    }
 }
 //endregion
 

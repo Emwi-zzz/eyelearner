@@ -8,6 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import amu.wmi.eyelearner.app.navigation.NavigationData
+import amu.wmi.eyelearner.app.auth.presentation.profile.HomeRoute
 
 @Composable
 fun AppNavHost(
@@ -20,15 +22,37 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
+
+        val navData: NavigationData =
+            NavigationData(
+                onHome = { navController.navigate(Route.Home) },
+                onSearchStory = { println("on search my story") },
+                onMyStories = { println("On my stories") },
+                onCalendar = { println("On calendar") },
+                onProfile = { println("On profile") },
+            )
+
         composable<Route.Login> {
             LoginRoute(
                 onLoginSuccess = {
-                    navController.navigate(Route.Profile) {
+                    navController.navigate(Route.Home) {
                         popUpTo(Route.Login) { inclusive = true }
                     }
                 }
             )
         }
+
+        composable<Route.Home> {
+            HomeRoute(
+                navData = navData,
+                onLoggedOut = {
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Home) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable<Route.Profile> {
             ProfileRoute(
                 onLoggedOut = {

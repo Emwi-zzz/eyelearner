@@ -6,7 +6,6 @@ import amu.wmi.eyelearner.app.core.platform.getAuthCallbackParams
 import amu.wmi.eyelearner.app.core.platform.getCurrentUrl
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,13 +28,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 
+//My imports
 import amu.wmi.eyelearner.app.theme.LocalThemeManager
 import amu.wmi.eyelearner.app.theme.Creature
 import amu.wmi.eyelearner.app.theme.DoubleEye
+import amu.wmi.eyelearner.app.theme.Background
 import amu.wmi.eyelearner.app.theme.ThemeManager
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ButtonDefaults
 //endregion
 
 
@@ -67,12 +79,15 @@ import androidx.compose.material3.ButtonDefaults
 @Composable fun LoginScreen(state: LoginScreenState, onIntent: (LoginIntent) -> Unit, onNavigateToSignUp: () -> Unit) {
     val theme : ThemeManager = LocalThemeManager.current
 
-    Box(
+    Background(
+        backgroundColor =  theme.creatureTheme.background_color,
+        squareColors = theme.creatureTheme.backgroundBody_color,
+
         modifier = Modifier
             .fillMaxSize()
             .background(color = theme.creatureTheme.background_color)
-        ,contentAlignment = Alignment.Center
-    ) {
+    ){
+
         LocalCreature(modifier = Modifier.align(Alignment.BottomCenter), theme = theme) {
             Column(modifier = Modifier.fillMaxWidth().padding(32.dp) ,horizontalAlignment = Alignment.CenterHorizontally ,verticalArrangement = Arrangement.Center) {
 
@@ -94,10 +109,6 @@ import androidx.compose.material3.ButtonDefaults
         }
     }
 
-
-
-
-
 }
 
 
@@ -107,11 +118,14 @@ import androidx.compose.material3.ButtonDefaults
         Creature(modifier = modifier,
             theme = theme,
 
-            topLeftCorner = 120.dp,
-            topRightCorner = 120.dp,
+            topLeftCornerMax = 183.dp,
+            topLeftCornerMin = 165.dp,
+            topRightCornerMax = 163.dp,
+            topRightCornerMin = 145.dp,
 
             width = 480.dp,
-            height = 0.7f,
+            heightMax = 0.7f,
+            heightMin = 0.69f,
         ){ content() }
     }
 
@@ -120,8 +134,8 @@ import androidx.compose.material3.ButtonDefaults
     @Composable fun LoginError(theme: ThemeManager, state: LoginScreenState){
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                containerColor = theme.appTheme.buttonRed,
+                contentColor = theme.appTheme.mainText_color
             ),
             modifier = Modifier
                 .width(300.dp)
@@ -130,7 +144,7 @@ import androidx.compose.material3.ButtonDefaults
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = state.error ?: "",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = theme.getTitleFont(),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -141,38 +155,88 @@ import androidx.compose.material3.ButtonDefaults
     @Composable fun LoginLoading(theme: ThemeManager, state: LoginScreenState){
         CircularProgressIndicator(
             modifier = Modifier.size(48.dp),
-            color = MaterialTheme.colorScheme.primary
+            color = theme.appTheme.mainText_color,
         )
+
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Authenticating...",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = theme.getTitleFont(theme.appTheme.mainText_color)
         )
     }
 
-    @Composable fun Login(theme: ThemeManager, state: LoginScreenState, onIntent: (LoginIntent) -> Unit){
+    @Composable fun Login(theme: ThemeManager, state: LoginScreenState, onIntent: (LoginIntent) -> Unit) {
         Button(
             onClick = {
                 val currentUrl = getCurrentUrl()
                 onIntent(LoginIntent.Login(currentUrl))
             },
             modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
+                .width(400.dp)
+                .height(80.dp)
+                .drawWithContent {
+                    drawContent()
+
+                    val radius     = 30.dp.toPx()
+                    val handWidth  = 50.dp.toPx()
+                    val handHeight = 45.dp.toPx()
+                    val offset     = handWidth
+                    val color      = theme.creatureTheme.body_color
+
+                    drawTopRoundedRect(
+                        color   = color,
+                        topLeft = Offset(offset, size.height - handHeight),
+                        width   = handWidth,
+                        height  = handHeight,
+                        radius  = radius
+                    )
+
+                    drawTopRoundedRect(
+                        color   = color,
+                        topLeft = Offset(size.width - handWidth - offset, size.height - handHeight),
+                        width   = handWidth,
+                        height  = handHeight,
+                        radius  = radius
+                    )
+                },
+
             colors = ButtonDefaults.buttonColors(
                 containerColor = theme.appTheme.buttonGreen,
                 contentColor = theme.appTheme.mainText_color
-            )
+            ),
+            contentPadding = PaddingValues(0.dp)
         ) {
-            Text(
-                text = "Zaloguj się z USOS",
-                style = MaterialTheme.typography.titleLarge
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(ButtonDefaults.shape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Zaloguj się z USOS",
+                    style = theme.getTitleFont()
+                )
+            }
         }
     }
 
+        private fun DrawScope.drawTopRoundedRect(color: Color, topLeft: Offset, width: Float, height: Float, radius: Float) {
+            val l = topLeft.x
+            val t = topLeft.y
+            val r = l + width
+            val b = t + height
 
 
+            val path = Path().apply {
+                moveTo(l, t + radius)
+                quadraticTo(l, t, l + radius, t)         // top-left round
+                lineTo(r - radius, t)
+                quadraticTo(r, t, r, t + radius)         // top-right round
+                lineTo(r, b)                             // bottom-right sharp
+                lineTo(l, b)                             // bottom-left sharp
+                close()
+            }
+            drawPath(path, color)
+        }
 
 
