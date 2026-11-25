@@ -24,17 +24,10 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameMillis
-import kotlin.math.sin
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.Easing
@@ -47,6 +40,8 @@ import androidx.compose.animation.core.StartOffset
 
 
 //region Creature
+
+//region creature animation
 private val PI_F = PI.toFloat()
 private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 
@@ -78,8 +73,9 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
     )
     return value
 }
+//endregion
 
-@Composable fun Creature(
+@Composable fun CreatureBody(
     theme: ThemeManager = LocalThemeManager.current,
 
     // Height (fraction of parent)
@@ -147,7 +143,7 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 
         colors = CardDefaults.cardColors(containerColor = theme.creatureTheme.body_color),
 
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         content()
     }

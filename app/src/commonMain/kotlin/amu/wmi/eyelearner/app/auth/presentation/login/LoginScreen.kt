@@ -17,7 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.Color
@@ -44,7 +40,7 @@ import androidx.compose.ui.graphics.Path
 
 //My imports
 import amu.wmi.eyelearner.app.theme.LocalThemeManager
-import amu.wmi.eyelearner.app.theme.Creature
+import amu.wmi.eyelearner.app.theme.CreatureBody
 import amu.wmi.eyelearner.app.theme.DoubleEye
 import amu.wmi.eyelearner.app.theme.Background
 import amu.wmi.eyelearner.app.theme.ThemeManager
@@ -115,7 +111,7 @@ import amu.wmi.eyelearner.app.theme.ThemeManager
 
     //Composition elements
     @Composable fun LocalCreature(theme : ThemeManager, modifier : Modifier, content: @Composable () -> Unit) {
-        Creature(modifier = modifier,
+        CreatureBody(modifier = modifier,
             theme = theme,
 
             topLeftCornerMax = 183.dp,

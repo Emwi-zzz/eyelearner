@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import amu.wmi.eyelearner.app.navigation.NavigationData
 import amu.wmi.eyelearner.app.auth.presentation.profile.HomeRoute
+import amu.wmi.eyelearner.app.auth.presentation.profile.ProfileIntent
 
 @Composable
 fun AppNavHost(
@@ -23,14 +24,20 @@ fun AppNavHost(
         startDestination = startDestination
     ) {
 
-        val navData: NavigationData =
-            NavigationData(
-                onHome = { navController.navigate(Route.Home) },
-                onSearchStory = { println("on search my story") },
-                onMyStories = { println("On my stories") },
-                onCalendar = { println("On calendar") },
-                onProfile = { println("On profile") },
-            )
+        val navData: NavigationData = NavigationData(
+            onHome = { navController.navigate(Route.Home) },
+            onSearchStory = { println("on search my story") },
+            onMyStories = { println("On my stories") },
+            onCalendar = { println("On calendar") },
+
+            onSettings = { println("on settings") },
+            onProfile = { navController.navigate(Route.Profile) },
+            onLoggedOut = {
+                navController.navigate(Route.Login) {
+                    popUpTo(Route.Home) { inclusive = true }
+                }
+            }
+        )
 
         composable<Route.Login> {
             LoginRoute(
@@ -55,6 +62,12 @@ fun AppNavHost(
 
         composable<Route.Profile> {
             ProfileRoute(
+                navData = navData,
+                onNavigateToLogin = {
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Profile) { inclusive = true }
+                    }
+                },
                 onLoggedOut = {
                     navController.navigate(Route.Login) {
                         popUpTo(Route.Profile) { inclusive = true }
