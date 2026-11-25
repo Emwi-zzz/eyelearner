@@ -11,8 +11,7 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
-
+//    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser{
             commonWebpackConfig {
@@ -53,9 +52,10 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.viewmodel.navigation)
 
+            implementation("io.coil-kt.coil3:coil-compose:3.6.3")
         }
         wasmJsMain.dependencies {
-
+            implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
         }
     }
 }

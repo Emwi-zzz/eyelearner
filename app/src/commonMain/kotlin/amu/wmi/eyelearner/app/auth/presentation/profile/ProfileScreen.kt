@@ -1,56 +1,32 @@
 package amu.wmi.eyelearner.app.auth.presentation.profile
 
-
-//region imports
+import amu.wmi.eyelearner.app.navigation.LabeledInputField
 import amu.wmi.eyelearner.app.navigation.MenuType
 import amu.wmi.eyelearner.app.navigation.NavBar
 import amu.wmi.eyelearner.app.navigation.NavigationData
 import amu.wmi.eyelearner.app.theme.Background
-import amu.wmi.eyelearner.app.theme.CreatureBody
-import amu.wmi.eyelearner.app.theme.DoubleEye
 import amu.wmi.eyelearner.app.theme.LocalThemeManager
+import amu.wmi.eyelearner.app.theme.MenuCreature
 import amu.wmi.eyelearner.app.theme.ThemeManager
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
 
-import amu.wmi.eyelearner.app.navigation.LabeledInputField
-import amu.wmi.eyelearner.app.navigation.UserIconAndUserName
-import amu.wmi.eyelearner.app.theme.MenuCreature
-//endregion
-
-
-@Composable fun ProfileRoute(
+@Composable
+fun ProfileRoute(
     navData: NavigationData,
     onLoggedOut: () -> Unit = {},
     onNavigateToLogin: () -> Unit = onLoggedOut,
@@ -59,9 +35,7 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state.isLoggedOut) {
-        if (state.isLoggedOut) {
-            onLoggedOut()
-        }
+        if (state.isLoggedOut) onNavigateToLogin()
     }
 
     ProfileScreen(
@@ -72,17 +46,30 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
     )
 }
 
-
-@Composable fun ProfileScreen(
+@Composable
+fun ProfileScreen(
     navData: NavigationData,
     state: ProfileScreenState,
     onIntent: (ProfileIntent) -> Unit,
     onNavigateToLogin: () -> Unit = {}
 ) {
     val theme: ThemeManager = LocalThemeManager.current
+    val pickAvatar = rememberAvatarPicker { uri ->
+        onIntent(ProfileIntent.UpdateAvatar(uri))
+    }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Surface messages via a snackbar
+    LaunchedEffect(state.savedMessage, state.errorMessage) {
+        val msg = state.errorMessage ?: state.savedMessage
+        if (msg != null) {
+            snackbarHostState.showSnackbar(msg)
+            onIntent(ProfileIntent.DismissMessage)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
         Background(
             backgroundColor = theme.creatureTheme.background_color,
             squareColors = theme.creatureTheme.backgroundBody_color,
@@ -91,7 +78,6 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
                 .background(color = theme.creatureTheme.background_color)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-
                 NavBar(
                     onIntent = onIntent,
                     theme = theme,
@@ -103,7 +89,7 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
 
                 Box(
                     modifier = Modifier
-                        .weight(1f)          // <- takes all space below navbar
+                        .weight(1f)
                         .fillMaxWidth()
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
@@ -112,7 +98,6 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
                         modifier = Modifier
                             .widthIn(min = 800.dp, max = 1400.dp)
                             .fillMaxWidth()
-                            // remove the fixed height so it can shrink:
                             .heightIn(min = 600.dp, max = 800.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = theme.appTheme.mainPanel_color
@@ -121,33 +106,152 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
                     ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
+                                .fillMaxSize()
+                                .padding(horizontal = 32.dp, vertical = 32.dp),
                             horizontalAlignment = Alignment.Start,
-                            verticalArrangement = Arrangement.Center
+                            verticalArrangement = Arrangement.Top
                         ) {
-                            UserIconAndUserName(
-                                theme = theme,
-                                userName = "User",
-                                fontSize = 70.sp,
-                                circleSize = 140.dp,
-                                modifier = Modifier.offset(x = 30.dp, y = 10.dp)
-                            )
+                            // ---------- Avatar ----------
+                            Box(
+                                modifier = Modifier
+                                    .padding(start = 30.dp, top = 10.dp)
+                                    .size(140.dp)
+                                    .clip(CircleShape)
+                                    .background(theme.appTheme.tertiaryText_color.copy(alpha = 0.2f))
+                                    .then(
+                                        if (state.isEditing)
+                                            Modifier.clickable { pickAvatar() }
+                                        else Modifier
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val avatarModel = state.editedAvatarUri
+                                if (avatarModel != null) {
+                                    AsyncImage(
+                                        model = avatarModel,
+                                        contentDescription = "User avatar",
+                                        modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Text(
+                                        text = (state.editedUsername.firstOrNull() ?: 'U')
+                                            .uppercaseChar().toString(),
+                                        fontSize = 60.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = theme.appTheme.text_color
+                                    )
+                                }
+                                if (state.isEditing) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape)
+                                            .background(Color.Black.copy(alpha = 0.35f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("Change", color = Color.White, fontSize = 16.sp)
+                                    }
+                                }
+                            }
 
                             Spacer(modifier = Modifier.height(30.dp))
 
-                            LabeledInputField(
-                                theme = theme,
-                                label = "Username",
-                                value = "User",
-                                onValueChange = { },
-                                fontSize = 40.sp,
-                                modifier = Modifier
-                                    .offset(x = 30.dp)
-                                    .width(400.dp)
-                            )
+                            // ---------- Username ----------
+                            if (state.isEditing) {
+                                LabeledInputField(
+                                    theme = theme,
+                                    label = "Username",
+                                    value = state.editedUsername,
+                                    onValueChange = { onIntent(ProfileIntent.UpdateUsername(it)) },
+                                    fontSize = 40.sp,
+                                    modifier = Modifier
+                                        .padding(start = 30.dp)
+                                        .width(400.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = state.editedUsername.ifBlank { "User" },
+                                    fontSize = 70.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = theme.appTheme.text_color,
+                                    modifier = Modifier.padding(start = 30.dp)
+                                )
+                            }
 
-                            // if(false){ ... } — keep or remove as you like
+                            if (state.errorMessage != null) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = state.errorMessage,
+                                    color = MaterialTheme.colorScheme.error,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 30.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(30.dp))
+
+                            // ---------- Actions ----------
+                            Row(
+                                modifier = Modifier.padding(start = 30.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                if (state.isEditing) {
+                                    Button(
+                                        onClick = { onIntent(ProfileIntent.SaveProfile) },
+                                        enabled = !state.isSaving,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = theme.appTheme.text_color
+                                        )
+                                    ) {
+                                        if (state.isSaving) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(18.dp),
+                                                strokeWidth = 2.dp,
+                                                color = theme.appTheme.mainPanel_color
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                        }
+                                        Text("Save", fontSize = 20.sp)
+                                    }
+                                    Button(
+                                        onClick = { onIntent(ProfileIntent.CancelEditing) },
+                                        enabled = !state.isSaving,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = theme.appTheme.tertiaryText_color
+                                        )
+                                    ) {
+                                        Text("Cancel", fontSize = 20.sp)
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { onIntent(ProfileIntent.StartEditing) },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = theme.appTheme.text_color
+                                        )
+                                    ) {
+                                        Text("Edit profile", fontSize = 20.sp)
+                                    }
+                                    // NEW: logout entry point
+                                    Button(
+                                        onClick = { onIntent(ProfileIntent.Logout) },
+                                        enabled = !state.isLoading,
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = theme.appTheme.tertiaryText_color
+                                        )
+                                    ) {
+                                        if (state.isLoading) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(18.dp),
+                                                strokeWidth = 2.dp,
+                                                color = theme.appTheme.mainPanel_color
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                        }
+                                        Text("Log out", fontSize = 20.sp)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -156,19 +260,24 @@ import amu.wmi.eyelearner.app.theme.MenuCreature
 
         MenuCreature(
             theme = theme,
-            heightMin = 0.290f, heightMax = 0.3f,
-            modifier = Modifier.align(BiasAlignment(
-                    horizontalBias = 4f / 6f, verticalBias = 1f)))
-    }
+            heightMin = 0.290f,
+            heightMax = 0.3f,
+            modifier = Modifier.align(
+                BiasAlignment(horizontalBias = 4f / 6f, verticalBias = 1f)
+            )
+        )
 
+        // Snackbar host so messages actually show up
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 24.dp)
+        )
+    }
 }
 
+@Composable
+expect fun rememberAvatarPicker(onPicked: (String) -> Unit): () -> Unit
 
-
-// In ProfileScreen composable
-//val imagePicker = rememberLauncherForActivityResult(
-//    contract = ActivityResultContracts.GetContent()
-//) { uri: Uri? ->
-//    uri?.let { onIntent(ProfileIntent.UpdateAvatar(it)) }
-//}
 

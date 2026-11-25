@@ -8,5 +8,6 @@ data class Session(
     val refreshToken: String,
     val userId: String = "",
     val username: String = "",
+    val avatarUrl: String = "",
     val expiresInSeconds: Long = 0
 )
