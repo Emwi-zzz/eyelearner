@@ -1,5 +1,7 @@
 package amu.wmi.eyelearner.app.auth.presentation.profile
 
+
+//region imports
 import amu.wmi.eyelearner.app.navigation.MenuType
 import amu.wmi.eyelearner.app.navigation.NavBar
 import amu.wmi.eyelearner.app.navigation.NavigationData
@@ -44,10 +46,11 @@ import org.koin.compose.viewmodel.koinViewModel
 
 import amu.wmi.eyelearner.app.navigation.LabeledInputField
 import amu.wmi.eyelearner.app.navigation.UserIconAndUserName
+import amu.wmi.eyelearner.app.theme.MenuCreature
+//endregion
 
 
-@Composable
-fun ProfileRoute(
+@Composable fun ProfileRoute(
     navData: NavigationData,
     onLoggedOut: () -> Unit = {},
     onNavigateToLogin: () -> Unit = onLoggedOut,
@@ -69,195 +72,103 @@ fun ProfileRoute(
     )
 }
 
-@Composable
-fun ProfileScreen(
+
+@Composable fun ProfileScreen(
     navData: NavigationData,
     state: ProfileScreenState,
     onIntent: (ProfileIntent) -> Unit,
     onNavigateToLogin: () -> Unit = {}
 ) {
-    val theme : ThemeManager = LocalThemeManager.current
+    val theme: ThemeManager = LocalThemeManager.current
 
-    Background(
-        backgroundColor =  theme.creatureTheme.background_color,
-        squareColors = theme.creatureTheme.backgroundBody_color,
+    Box(modifier = Modifier.fillMaxSize()) {
 
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = theme.creatureTheme.background_color)
-    ){
-        NavBar(
-            onIntent = onIntent,
-
-            theme = theme,
-            navData = navData,
-            openedMenu = MenuType.profile,
-
-            openedMenuColor = theme.appTheme.text_color,
-            otherMenuColor = theme.appTheme.tertiaryText_color,
-        )
-
-        Box(
+        Background(
+            backgroundColor = theme.creatureTheme.background_color,
+            squareColors = theme.creatureTheme.backgroundBody_color,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .background(color = theme.creatureTheme.background_color)
         ) {
-            Card(
-                modifier = Modifier
-                    .widthIn(min = 800.dp, max = 1400.dp)
-                    .fillMaxWidth()
-                    .heightIn(min = 800.dp, max = 800.dp),
+            Column(modifier = Modifier.fillMaxSize()) {
 
-                colors = CardDefaults.cardColors(containerColor = theme.appTheme.mainPanel_color),
+                NavBar(
+                    onIntent = onIntent,
+                    theme = theme,
+                    navData = navData,
+                    openedMenu = MenuType.profile,
+                    openedMenuColor = theme.appTheme.text_color,
+                    otherMenuColor = theme.appTheme.tertiaryText_color,
+                )
 
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            ) {
-                Column(
+                Box(
                     modifier = Modifier
+                        .weight(1f)          // <- takes all space below navbar
                         .fillMaxWidth()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-
-                    UserIconAndUserName(
-                        theme = theme,
-                        userName = "User",
-                        fontSize = 70.sp,
-                        circleSize = 140.dp,
-                        modifier = Modifier.offset(x = 30.dp, y = 10.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    LabeledInputField(
-                        theme = theme,
-                        label = "Username",
-                        value = "User",
-                        onValueChange = { },
-
-                        fontSize = 40.sp,
-
+                    Card(
                         modifier = Modifier
-                                .offset(x = 30.dp)
-                                .width(400.dp)
-                    )
-
-
-
-                    if(false){
-//                        old show session code
-                        if (state.session != null) {
-                            Text(
-                                text = "You are currently signed in.",
-                                style = theme.getTextFont(color=theme.appTheme.text_color, fontSize = 25.sp),
+                            .widthIn(min = 800.dp, max = 1400.dp)
+                            .fillMaxWidth()
+                            // remove the fixed height so it can shrink:
+                            .heightIn(min = 600.dp, max = 800.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = theme.appTheme.mainPanel_color
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            UserIconAndUserName(
+                                theme = theme,
+                                userName = "User",
+                                fontSize = 70.sp,
+                                circleSize = 140.dp,
+                                modifier = Modifier.offset(x = 30.dp, y = 10.dp)
                             )
 
-                            Spacer(modifier = Modifier.height(24.dp))
+                            Spacer(modifier = Modifier.height(30.dp))
 
-                            Card(
-                                colors = CardDefaults.cardColors(containerColor = theme.appTheme.secondaryPanel_color),
+                            LabeledInputField(
+                                theme = theme,
+                                label = "Username",
+                                value = "User",
+                                onValueChange = { },
+                                fontSize = 40.sp,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 24.dp)
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(
-                                        text = "Session Active",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = theme.appTheme.secondaryText_color,
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    if (state.session.userId.isNotBlank()) {
-                                        Text(
-                                            text = "User ID: ${state.session.userId}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = theme.appTheme.tertiaryText_color
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
-                                    Text(
-                                        text = "Access Token: ${state.session.accessToken.take(12)}...",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = theme.appTheme.secondaryText_color,
-                                    )
-                                }
-                            }
-
-                            if (state.isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = theme.appTheme.text_color
-                                )
-                            }
-
-                        } else {
-                            Text(
-                                text = "You are currently signed out.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center
+                                    .offset(x = 30.dp)
+                                    .width(400.dp)
                             )
 
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            if (state.isLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(48.dp),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            } else {
-                                onNavigateToLogin()
-                            }
+                            // if(false){ ... } — keep or remove as you like
                         }
                     }
-
                 }
             }
         }
 
-
-        CreatureBody(
+        MenuCreature(
             theme = theme,
-
-            heightMin = 0.290f,
-            heightMax = 0.3f,
-
-            topLeftCornerMin = 70.dp,
-            topLeftCornerMax = 75.dp,
-            topRightCornerMin = 60.dp,
-            topRightCornerMax = 65.dp,
-
-            width = 150.dp,
-
-            modifier = Modifier.align(
-                BiasAlignment(
-                    horizontalBias = 4f / 6f,   // approximately 0.6667, corresponding to 5/6 position
-                    verticalBias   = 1f         // 1f represents bottom
-                )
-            )
-        ){
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(32.dp) ,
-                horizontalAlignment = Alignment.CenterHorizontally ,
-                verticalArrangement = Arrangement.Center)
-            {
-                DoubleEye(
-                    diameter = 60.dp,
-
-                    insideColor = theme.creatureTheme.eye_color,
-
-                    offsetX = -(4.dp),
-                    offsetY = -(4.dp),
-
-                    modifier = Modifier.offset(x = -(15.dp))
-
-                )
-            }
-        }
+            heightMin = 0.290f, heightMax = 0.3f,
+            modifier = Modifier.align(BiasAlignment(
+                    horizontalBias = 4f / 6f, verticalBias = 1f)))
     }
 
 }
+
+
+
+// In ProfileScreen composable
+//val imagePicker = rememberLauncherForActivityResult(
+//    contract = ActivityResultContracts.GetContent()
+//) { uri: Uri? ->
+//    uri?.let { onIntent(ProfileIntent.UpdateAvatar(it)) }
+//}
+

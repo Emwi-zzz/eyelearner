@@ -12,6 +12,7 @@ plugins {
 
 kotlin {
     @OptIn(ExperimentalWasmDsl::class)
+
     wasmJs {
         browser{
             commonWebpackConfig {
@@ -23,6 +24,8 @@ kotlin {
         }
         binaries.executable()
     }
+
+    jvm("desktop")
 
     sourceSets {
         commonMain.dependencies {

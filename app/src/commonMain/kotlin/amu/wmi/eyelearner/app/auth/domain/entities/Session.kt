@@ -7,5 +7,6 @@ data class Session(
     val accessToken: String,
     val refreshToken: String,
     val userId: String = "",
+    val username: String = "",
     val expiresInSeconds: Long = 0
 )

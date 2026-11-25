@@ -114,10 +114,11 @@ data class ThemePack(
     val creatureTheme: CreatureTheme,
 )
 
-//    private val defaultThemePack = ThemePack(
-//        appTheme = defaultApp_DarkTheme,
-//        creatureTheme = defaultCreature_PinkTheme,
-//    )
+    private val defaultThemePack = ThemePack(
+        appTheme = defaultApp_DarkTheme,
+        creatureTheme = defaultCreature_PinkTheme,
+    )
+
 //    private val defaultThemePack = ThemePack(
 //        appTheme = defaultApp_LightGreenTheme,
 //        creatureTheme = defaultCreature_LightGreenTheme,
@@ -126,10 +127,12 @@ data class ThemePack(
 //        appTheme = defaultApp_DarkTheme,
 //        creatureTheme = defaultCreature_DarkBlueTheme,
 //    )
-    private val defaultThemePack = ThemePack(
-        appTheme = defaultApp_LightGreyTheme,
-        creatureTheme = defaultCreature_LightGreyTheme,
-    )
+//    private val defaultThemePack = ThemePack(
+//        appTheme = defaultApp_LightGreyTheme,
+//        creatureTheme = defaultCreature_LightGreyTheme,
+//    )
+
+
 
 class ThemeManager {
     var appTheme: AppTheme by mutableStateOf(defaultThemePack.appTheme)

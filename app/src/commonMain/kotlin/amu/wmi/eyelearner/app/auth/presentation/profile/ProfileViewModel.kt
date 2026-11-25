@@ -9,15 +9,31 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
 
 data class ProfileScreenState(
     val session: Session? = null,
     val isLoading: Boolean = false,
-    val isLoggedOut: Boolean = false
+    val isLoggedOut: Boolean = false,
+
+    val isEditing: Boolean = false,
+    val editedUsername: String = "User",
+    val editedAvatarUri: String? = null,   // was Uri?
+    val isSaving: Boolean = false
 )
 
 sealed interface ProfileIntent {
     data object Logout : ProfileIntent
+
+    data object StartEditing : ProfileIntent
+    data object CancelEditing : ProfileIntent
+    data class UpdateUsername(val name: String) : ProfileIntent
+    data class UpdateAvatar(val uri: String) : ProfileIntent   // was Uri
+    data object SaveProfile : ProfileIntent
 }
 
 class ProfileViewModel(
@@ -38,6 +54,39 @@ class ProfileViewModel(
     fun handleIntent(intent: ProfileIntent) {
         when (intent) {
             is ProfileIntent.Logout -> viewModelScope.launch { logout() }
+
+            is ProfileIntent.UpdateUsername -> {
+                _state.update { it.copy(editedUsername = intent.name) }
+            }
+            is ProfileIntent.UpdateAvatar -> {
+                _state.update { it.copy(editedAvatarUri = intent.uri) }
+            }
+            is ProfileIntent.SaveProfile -> {
+                viewModelScope.launch {
+                    _state.update { it.copy(isSaving = true) }
+                    try {
+                        // 1. If avatar is local URI, upload to cloud first and get URL
+                        // 2. Save username and avatar URL to Repository/DataStore
+                        // 3. Update state and exit edit mode
+                        _state.update { it.copy(isSaving = false, isEditing = false) }
+                    } catch (e: Exception) {
+                        _state.update { it.copy(isSaving = false) }
+                    }
+                }
+            }
+
+            is ProfileIntent.StartEditing -> {
+                _state.update { it.copy(isEditing = true) }
+            }
+            is ProfileIntent.CancelEditing -> {
+                _state.update {
+                    it.copy(
+                        isEditing = false,
+                        editedUsername = it.session?.username ?: "User",
+                        editedAvatarUri = null
+                    )
+                }
+            }
         }
     }
 

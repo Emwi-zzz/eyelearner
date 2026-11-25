@@ -34,12 +34,53 @@ import androidx.compose.animation.core.Easing
 import kotlin.math.cos
 import kotlin.math.PI
 import androidx.compose.animation.core.StartOffset
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.BiasAlignment
 
 //endregion imports
 
 
 
 //region Creature
+
+//Built creatures
+    @Composable fun MenuCreature(
+        theme: ThemeManager,
+        heightMin: Float = 0.6f,
+        heightMax: Float = 0.7f,
+        modifier: Modifier
+    ){
+        CreatureBody(
+            theme = theme,
+            heightMin = heightMin,
+            heightMax = heightMax,
+            topLeftCornerMin = 70.dp,
+            topLeftCornerMax = 75.dp,
+            topRightCornerMin = 60.dp,
+            topRightCornerMax = 65.dp,
+            width = 150.dp,
+            modifier = modifier,
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                DoubleEye(
+                    diameter = 60.dp,
+                    insideColor = theme.creatureTheme.eye_color,
+                    offsetX = -(4.dp),
+                    offsetY = -(4.dp),
+                    modifier = Modifier.offset(x = -(15.dp))
+                )
+            }
+        }
+    }
+
+
 
 //region creature animation
 private val PI_F = PI.toFloat()
@@ -75,83 +116,82 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 }
 //endregion
 
-@Composable fun CreatureBody(
-    theme: ThemeManager = LocalThemeManager.current,
+//Build creature
+    @Composable fun CreatureBody(
+        theme: ThemeManager = LocalThemeManager.current,
 
-    // Height (fraction of parent)
-    heightMin: Float = 0.6f,
-    heightMax: Float = 0.7f,
+        // Height (fraction of parent)
+        heightMin: Float = 0.6f,
+        heightMax: Float = 0.7f,
 
-    // Top-left corner radius
-    topLeftCornerMin:  Dp = 120.dp,
-    topLeftCornerMax:  Dp = 140.dp,
+        // Top-left corner radius
+        topLeftCornerMin:  Dp = 120.dp,
+        topLeftCornerMax:  Dp = 140.dp,
 
-    // Top-right corner radius
-    topRightCornerMin: Dp = 120.dp,
-    topRightCornerMax: Dp = 140.dp,
+        // Top-right corner radius
+        topRightCornerMin: Dp = 120.dp,
+        topRightCornerMax: Dp = 140.dp,
 
-    width: Dp = 0.dp,
+        width: Dp = 0.dp,
 
-    breathe: Boolean = true,
-    periodMillis: Int = 1400,
+        breathe: Boolean = true,
+        periodMillis: Int = 1400,
 
-    topLeftPhase:  Float = 0f,
-    topRightPhase: Float = 0f,
+        topLeftPhase:  Float = 0f,
+        topRightPhase: Float = 0f,
 
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    // ---- Height animation ----
-    val heightFraction = rememberSine(
-        min = heightMin,
-        max = heightMax,
-        periodMillis = periodMillis,
-        phase = 0f,
-        enabled = breathe,
-        label = "creature.height"
-    )
-
-    // ---- Top-left corner animation ----
-    val topLeftRadius = rememberSine(
-        min = topLeftCornerMin.value,
-        max = topLeftCornerMax.value,
-        periodMillis = periodMillis,
-        phase = topLeftPhase,
-        enabled = breathe,
-        label = "creature.topLeft"
-    )
-
-    // ---- Top-right corner animation ----
-    val topRightRadius = rememberSine(
-        min = topRightCornerMin.value,
-        max = topRightCornerMax.value,
-        periodMillis = periodMillis,
-        phase = topRightPhase,
-        enabled = breathe,
-        label = "creature.topRight"
-    )
-
-    Card(
-        modifier = modifier
-            .fillMaxHeight(heightFraction)
-            .width(width),
-
-        shape = RoundedCornerShape(
-            topStart = topLeftRadius.dp,
-            topEnd   = topRightRadius.dp,
-        ),
-
-        colors = CardDefaults.cardColors(containerColor = theme.creatureTheme.body_color),
-
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        modifier: Modifier = Modifier,
+        content: @Composable () -> Unit
     ) {
-        content()
+        // ---- Height animation ----
+        val heightFraction = rememberSine(
+            min = heightMin,
+            max = heightMax,
+            periodMillis = periodMillis,
+            phase = 0f,
+            enabled = breathe,
+            label = "creature.height"
+        )
+
+        // ---- Top-left corner animation ----
+        val topLeftRadius = rememberSine(
+            min = topLeftCornerMin.value,
+            max = topLeftCornerMax.value,
+            periodMillis = periodMillis,
+            phase = topLeftPhase,
+            enabled = breathe,
+            label = "creature.topLeft"
+        )
+
+        // ---- Top-right corner animation ----
+        val topRightRadius = rememberSine(
+            min = topRightCornerMin.value,
+            max = topRightCornerMax.value,
+            periodMillis = periodMillis,
+            phase = topRightPhase,
+            enabled = breathe,
+            label = "creature.topRight"
+        )
+
+        Card(
+            modifier = modifier
+                .fillMaxHeight(heightFraction)
+                .width(width),
+
+            shape = RoundedCornerShape(
+                topStart = topLeftRadius.dp,
+                topEnd   = topRightRadius.dp,
+            ),
+
+            colors = CardDefaults.cardColors(containerColor = theme.creatureTheme.body_color),
+
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        ) {
+            content()
+        }
     }
-}
 
-//endregion
-
-//region Eye
+    //region Eye
 
     //region Eye elements
     @Composable
@@ -183,7 +223,7 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
                 .background(color = insideColor, shape = CircleShape)
         )
     }
-        //endregion
+    //endregion
 
     fun pupilSize(size : Dp) : Dp {
         return size/2f
@@ -276,7 +316,10 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 
 
 
+    //endregion
+
 //endregion
+
 
 //region Background
 @Composable
