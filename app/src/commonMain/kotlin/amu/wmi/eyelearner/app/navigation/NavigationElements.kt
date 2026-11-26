@@ -2,6 +2,10 @@ package amu.wmi.eyelearner.app.navigation
 
 //region imports
 import amu.wmi.eyelearner.app.auth.presentation.profile.ProfileIntent
+import amu.wmi.eyelearner.app.auth.presentation.profile.ProfileScreenState
+import amu.wmi.eyelearner.app.theme.Background
+import amu.wmi.eyelearner.app.theme.LocalThemeManager
+import amu.wmi.eyelearner.app.theme.MenuCreature
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,11 +51,53 @@ import androidx.compose.ui.unit.Dp
 
 //my imports
 import amu.wmi.eyelearner.app.theme.ThemeManager
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.unit.TextUnit
 //endregion
 
+
+//Generic menu
+@Composable fun GenericMenu(
+    onIntent: (ProfileIntent) -> Unit,
+    state: ProfileScreenState,
+    navData: NavigationData,
+
+    creature: @Composable () -> Unit = {},
+
+    content: @Composable () -> Unit
+){
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Background(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = LocalThemeManager.current.creatureTheme.background_color)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
+                NavBar(
+                    onIntent = onIntent,
+                    navData = navData,
+                    openedMenu = MenuType.profile,
+                    openedMenuColor = LocalThemeManager.current.appTheme.text_color,
+                    otherMenuColor = LocalThemeManager.current.appTheme.tertiaryText_color,
+                )
+
+                content()
+            }
+        }
+
+        creature()
+    }
+}
+//endregion
 
 //region navbar
 data class NavigationData(
@@ -94,7 +140,6 @@ fun NavBar(
     onIntent: (ProfileIntent) -> Unit,
 
     navData: NavigationData,
-    theme: ThemeManager,
     openedMenu: MenuType,
 
     openedMenuColor: Color,
@@ -106,14 +151,13 @@ fun NavBar(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(1f / 12f)
-            .background(theme.appTheme.mainPanel_color)
+            .background(LocalThemeManager.current.appTheme.mainPanel_color)
             .padding(horizontal = 24.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
 
         EyeLearnerTextButton(
-            theme = theme,
             text = navData.homeText,
             selected = openedMenu == MenuType.home,
             openedMenuColor = openedMenuColor,
@@ -121,7 +165,6 @@ fun NavBar(
             onClick = navData.onHome
         )
         EyeLearnerTextButton(
-            theme = theme,
             text = navData.myStoriesText,
             selected = openedMenu == MenuType.myStories,
             openedMenuColor = openedMenuColor,
@@ -129,7 +172,6 @@ fun NavBar(
             onClick = navData.onMyStories
         )
         EyeLearnerTextButton(
-            theme = theme,
             text = navData.searchStoriesText,
             selected = openedMenu == MenuType.searchStory,
             openedMenuColor = openedMenuColor,
@@ -137,7 +179,6 @@ fun NavBar(
             onClick = navData.onSearchStory
         )
         EyeLearnerTextButton(
-            theme = theme,
             text = navData.calendarText,
             selected = openedMenu == MenuType.calendar,
             openedMenuColor = openedMenuColor,
@@ -179,7 +220,7 @@ fun NavBar(
                     text = navData.profileName,
                     color = if (profileHovered || profileMenuExpanded) openedMenuColor
                     else otherMenuColor,
-                    style = theme.getTitleFont(fontSize = 20.sp),
+                    style = LocalThemeManager.current.getTitleFont(fontSize = 20.sp),
                     overflow = TextOverflow.Ellipsis
                 )
             }
@@ -194,7 +235,7 @@ fun NavBar(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = theme.appTheme.secondaryPanel_color,
+                        color = LocalThemeManager.current.appTheme.secondaryPanel_color,
                         shadowElevation = 6.dp,
                         modifier = Modifier
                             .width(220.dp)
@@ -207,7 +248,6 @@ fun NavBar(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             EyeLearnerTextButton(
-                                theme = theme,
                                 text = navData.profileText,
                                 selected = openedMenu == MenuType.profile,
                                 openedMenuColor = openedMenuColor,
@@ -219,7 +259,6 @@ fun NavBar(
                                 }
                             )
                             EyeLearnerTextButton(
-                                theme = theme,
                                 text = navData.settingsText,
                                 selected = openedMenu == MenuType.settings,
                                 openedMenuColor = openedMenuColor,
@@ -231,11 +270,10 @@ fun NavBar(
                                 }
                             )
                             EyeLearnerTextButton(
-                                theme = theme,
                                 text = navData.logoutText,
                                 selected = false,
-                                openedMenuColor = theme.appTheme.buttonRed,
-                                otherMenuColor = theme.appTheme.buttonRed,
+                                openedMenuColor = LocalThemeManager.current.appTheme.buttonRed,
+                                otherMenuColor = LocalThemeManager.current.appTheme.buttonRed,
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
                                     profileMenuExpanded = false
@@ -251,13 +289,10 @@ fun NavBar(
     }
 }
 
-
-
     private fun Color.lighten(amount: Float): Color =
         lerp(this, Color.White, amount.coerceIn(0f, 1f))
 
     @Composable private fun EyeLearnerTextButton(
-        theme: ThemeManager,
         text: String,
         selected: Boolean,
         openedMenuColor: Color,
@@ -285,7 +320,7 @@ fun NavBar(
         ) {
             Text(
                 text = text,
-                style = theme.getTitleFont(
+                style = LocalThemeManager.current.getTitleFont(
                     color = textColor,
                     fontSize = 20.sp,
                 ),
@@ -295,14 +330,9 @@ fun NavBar(
     }
 //endregion
 
-//region underNavbar menu
-
-
-//endregion
 
 // region inpout field,   user icon and name
 @Composable fun LabeledInputField(
-    theme: ThemeManager,
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
@@ -328,8 +358,8 @@ fun NavBar(
             modifier = Modifier
                 .width(labelWidth)
                 .offset(y = 5.dp),
-            style = theme.getTextFont(
-                color = theme.appTheme.secondaryText_color,
+            style = LocalThemeManager.current.getTextFont(
+                color = LocalThemeManager.current.appTheme.secondaryText_color,
                 fontSize = fontSize,
             ),
             maxLines = 1,
@@ -341,15 +371,15 @@ fun NavBar(
                 .weight(1f)
                 .height(fieldHeight)                    // ← height zamiast size()
                 .clip(RoundedCornerShape(cornerRadius))
-                .background(theme.appTheme.secondaryPanel_color)  // ← tło, opcjonalne
+                .background(LocalThemeManager.current.appTheme.secondaryPanel_color)  // ← tło, opcjonalne
                 .padding(horizontal = 12.dp),
             contentAlignment = Alignment.CenterStart
         ) {
             if (value.isEmpty() && placeholder.isNotEmpty()) {
                 Text(
                     text = placeholder,
-                    style = theme.getTextFont(
-                        color = theme.appTheme.text_color,
+                    style = LocalThemeManager.current.getTextFont(
+                        color = LocalThemeManager.current.appTheme.text_color,
                         fontSize = fontSize,
                     ),
                     maxLines = 1,
@@ -364,11 +394,11 @@ fun NavBar(
                     .fillMaxHeight(),                   // ← KLUCZ: wypełnia cały Box
                 enabled = enabled,
                 singleLine = singleLine,
-                textStyle = theme.getTextFont(
-                    color = theme.appTheme.text_color,
+                textStyle = LocalThemeManager.current.getTextFont(
+                    color = LocalThemeManager.current.appTheme.text_color,
                     fontSize = fontSize,
                 ),
-                cursorBrush = SolidColor(theme.appTheme.text_color),
+                cursorBrush = SolidColor(LocalThemeManager.current.appTheme.text_color),
                 keyboardActions = keyboardActions,
             )
         }
@@ -378,7 +408,6 @@ fun NavBar(
 
 
 @Composable fun UserIconAndUserName(
-    theme: ThemeManager,
     userName: String,
     modifier: Modifier = Modifier,
 
@@ -397,14 +426,14 @@ fun NavBar(
             modifier = Modifier
                 .size(circleSize)
                 .clip(CircleShape)
-                .background(theme.appTheme.text_color),
+                .background(LocalThemeManager.current.appTheme.text_color),
             contentAlignment = Alignment.Center
         ) {}
 
         Text(
             text = userName,
-            style = theme.getTextFont(
-                color = theme.appTheme.mainText_color,
+            style = LocalThemeManager.current.getTextFont(
+                color = LocalThemeManager.current.appTheme.mainText_color,
                 fontSize = fontSize,
             ),
             maxLines = 1,
@@ -413,5 +442,7 @@ fun NavBar(
     }
 }
 //endregion
+
+
 
 

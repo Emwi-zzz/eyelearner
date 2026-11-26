@@ -77,9 +77,6 @@ import amu.wmi.eyelearner.app.theme.ThemeManager
     val theme : ThemeManager = LocalThemeManager.current
 
     Background(
-        backgroundColor =  theme.creatureTheme.background_color,
-        squareColors = theme.creatureTheme.backgroundBody_color,
-
         modifier = Modifier
             .fillMaxSize()
             .background(color = theme.creatureTheme.background_color)
@@ -113,8 +110,6 @@ import amu.wmi.eyelearner.app.theme.ThemeManager
     //Composition elements
     @Composable fun LocalCreature(theme : ThemeManager, modifier : Modifier, content: @Composable () -> Unit) {
         CreatureBody(modifier = modifier,
-            theme = theme,
-
             topLeftCornerMax = 183.dp,
             topLeftCornerMin = 165.dp,
             topRightCornerMax = 163.dp,

@@ -43,18 +43,15 @@ import androidx.compose.ui.BiasAlignment
 //endregion imports
 
 
-
 //region Creature
 
 //Built creatures
     @Composable fun MenuCreature(
-        theme: ThemeManager,
         heightMin: Float = 0.6f,
         heightMax: Float = 0.7f,
         modifier: Modifier
     ){
         CreatureBody(
-            theme = theme,
             heightMin = heightMin,
             heightMax = heightMax,
             topLeftCornerMin = 70.dp,
@@ -71,7 +68,7 @@ import androidx.compose.ui.BiasAlignment
             ) {
                 DoubleEye(
                     diameter = 60.dp,
-                    insideColor = theme.creatureTheme.eye_color,
+                    insideColor = LocalThemeManager.current.creatureTheme.eye_color,
                     offsetX = -(4.dp),
                     offsetY = -(4.dp),
                     modifier = Modifier.offset(x = -(15.dp))
@@ -118,7 +115,6 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 
 //Build creature
     @Composable fun CreatureBody(
-        theme: ThemeManager = LocalThemeManager.current,
 
         // Height (fraction of parent)
         heightMin: Float = 0.6f,
@@ -183,7 +179,7 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
                 topEnd   = topRightRadius.dp,
             ),
 
-            colors = CardDefaults.cardColors(containerColor = theme.creatureTheme.body_color),
+            colors = CardDefaults.cardColors(containerColor = LocalThemeManager.current.creatureTheme.body_color),
 
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
@@ -324,15 +320,15 @@ private val SineInOut = Easing { t -> (1f - cos(PI_F * t)) / 2f}
 //region Background
 @Composable
 fun Background(
-    backgroundColor: Color,
-    squareColors: Color,
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val squareColors = LocalThemeManager.current.creatureTheme.backgroundBody_color
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundColor)
+            .background(LocalThemeManager.current.creatureTheme.background_color)
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
 
