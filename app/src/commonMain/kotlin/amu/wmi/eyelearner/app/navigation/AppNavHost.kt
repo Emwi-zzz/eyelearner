@@ -18,11 +18,8 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: Route = Route.Login,
 ) {
-    NavHost(
-        modifier = modifier,
-        navController = navController,
-        startDestination = startDestination
-    ) {
+    NavHost(modifier = modifier, navController = navController, startDestination = startDestination) {
+
 
         val navData: NavigationData = NavigationData(
             onHome = { navController.navigate(Route.Home) },

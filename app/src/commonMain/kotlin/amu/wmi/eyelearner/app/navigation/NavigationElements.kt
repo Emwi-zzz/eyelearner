@@ -63,16 +63,18 @@ import androidx.compose.ui.unit.TextUnit
 //endregion
 
 
-//Generic menu
+//region Generic menu
 @Composable fun GenericMenu(
     onIntent: (ProfileIntent) -> Unit,
     state: ProfileScreenState,
     navData: NavigationData,
+    openedMenu: MenuType,
 
     creature: @Composable () -> Unit = {},
 
     content: @Composable () -> Unit
-){
+)
+{
     Box(modifier = Modifier.fillMaxSize()) {
 
         Background(
@@ -85,7 +87,7 @@ import androidx.compose.ui.unit.TextUnit
                 NavBar(
                     onIntent = onIntent,
                     navData = navData,
-                    openedMenu = MenuType.profile,
+                    openedMenu = openedMenu,
                     openedMenuColor = LocalThemeManager.current.appTheme.text_color,
                     otherMenuColor = LocalThemeManager.current.appTheme.tertiaryText_color,
                 )
@@ -99,6 +101,7 @@ import androidx.compose.ui.unit.TextUnit
 }
 //endregion
 
+
 //region navbar
 data class NavigationData(
 
@@ -108,21 +111,24 @@ data class NavigationData(
     val onMyStories: () -> Unit,
     val onCalendar: () -> Unit,
 
-    val homeText: String = "Dom",
-    val searchStoriesText: String = "Znajdź fabuły",
-    val myStoriesText: String = "Moje fabuły",
-    val calendarText: String = "Kalendarz",
-    val profileName: String = "User", // placeholder
 
 //  Menu po rozszerzeniu paska nawigacji
     val onSettings: () -> Unit,
     val onProfile: () -> Unit,
     val onLoggedOut: () -> Unit,
-
-    val profileText: String = "Profil",
-    val settingsText: String = "Ustawienia",
-    val logoutText: String = "Wyloguj",
 )
+
+//data class NavigationLocalization{
+//    val profileText: String = "Profil",
+//    val settingsText: String = "Ustawienia",
+//    val logoutText: String = "Wyloguj",
+//
+//    val homeText: String = "Dom",
+//    val searchStoriesText: String = "Znajdź fabuły",
+//    val myStoriesText: String = "Moje fabuły",
+//    val calendarText: String = "Kalendarz",
+//    val profileName: String = "Użytkownik"
+//}
 
 enum class MenuType {
     home,
@@ -158,28 +164,28 @@ fun NavBar(
     ) {
 
         EyeLearnerTextButton(
-            text = navData.homeText,
+            text = "Dom",
             selected = openedMenu == MenuType.home,
             openedMenuColor = openedMenuColor,
             otherMenuColor = otherMenuColor,
             onClick = navData.onHome
         )
         EyeLearnerTextButton(
-            text = navData.myStoriesText,
+            text = "Moje fabuły",
             selected = openedMenu == MenuType.myStories,
             openedMenuColor = openedMenuColor,
             otherMenuColor = otherMenuColor,
             onClick = navData.onMyStories
         )
         EyeLearnerTextButton(
-            text = navData.searchStoriesText,
+            text = "Szukaj fabuł",
             selected = openedMenu == MenuType.searchStory,
             openedMenuColor = openedMenuColor,
             otherMenuColor = otherMenuColor,
             onClick = navData.onSearchStory
         )
         EyeLearnerTextButton(
-            text = navData.calendarText,
+            text = "Kalendarz",
             selected = openedMenu == MenuType.calendar,
             openedMenuColor = openedMenuColor,
             otherMenuColor = otherMenuColor,
@@ -217,7 +223,7 @@ fun NavBar(
                 )
 
                 Text(
-                    text = navData.profileName,
+                    text = "Uzytkownik",
                     color = if (profileHovered || profileMenuExpanded) openedMenuColor
                     else otherMenuColor,
                     style = LocalThemeManager.current.getTitleFont(fontSize = 20.sp),
@@ -248,7 +254,7 @@ fun NavBar(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             EyeLearnerTextButton(
-                                text = navData.profileText,
+                                text = "Profil",
                                 selected = openedMenu == MenuType.profile,
                                 openedMenuColor = openedMenuColor,
                                 otherMenuColor = otherMenuColor,
@@ -259,7 +265,7 @@ fun NavBar(
                                 }
                             )
                             EyeLearnerTextButton(
-                                text = navData.settingsText,
+                                text = "Ustawienia",
                                 selected = openedMenu == MenuType.settings,
                                 openedMenuColor = openedMenuColor,
                                 otherMenuColor = otherMenuColor,
@@ -270,7 +276,7 @@ fun NavBar(
                                 }
                             )
                             EyeLearnerTextButton(
-                                text = navData.logoutText,
+                                text = "Wyloguj",
                                 selected = false,
                                 openedMenuColor = LocalThemeManager.current.appTheme.buttonRed,
                                 otherMenuColor = LocalThemeManager.current.appTheme.buttonRed,

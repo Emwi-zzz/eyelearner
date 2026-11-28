@@ -87,16 +87,22 @@ import androidx.compose.foundation.layout.fillMaxHeight
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val creature = MenuCreature(
-            heightMin = 0.290f, heightMax = 0.3f,
-            modifier = Modifier.align(BiasAlignment(horizontalBias = 4f / 6f, verticalBias = 1f)))
 
         GenericMenu(
             onIntent = onIntent,
             state = state,
             navData = navData,
+            openedMenu = MenuType.profile,
 
-            creature = { creature }
+            creature = {
+                MenuCreature(
+                    heightMin = 0.290f,
+                    heightMax = 0.3f,
+                    modifier = Modifier.align(
+                        BiasAlignment(horizontalBias = 4f / 6f, verticalBias = 1f)
+                    )
+                )
+            }
         ){
 
 //          Profile screen
